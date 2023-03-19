@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta charset="UTF-8">
+    <link type="text/css" href="{{url_for('static', filename='css/styles.css')}}" rel="stylesheet"/>
+<link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon2.ico') }}">
+    {% if title %}
+    <title>Самые крутые машины </title>
+    {% else%}
+    <title>Добро пожаловать в мир машин </title>
+    {% endif %}
+</head>
+<body>
+
+{% block content %}
+            {%- block mainmenu -%}
+        <ul class="mainmenu">
+            {% for  m in menu -%}
+            <li><a href="{{url_for(m.url)}}"> {{m.title}}</a></li>
+        {% endfor -%}
+        </ul>
+
+            {% endblock mainmenu -%}
+
+<hr>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<ul>
+    {% for message in messages  %}
+    <li>{{message}}     </li>
+    {% endfor %}
+
+</ul>
+{% endif %}
+{% endwith %}
+{% endblock %}
+</body>
+</html>
