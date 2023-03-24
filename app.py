@@ -25,7 +25,19 @@ def get_db():
 def start_page():
     return render_template('index.html', title='Главная')
 
+#Register
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    db = get_db()
+    database = FDataBase(db)
+    if request.method == 'POST':
+        if request.form['password'] == request.form['password2']:
+            database.addData(request.form["username"], request.form["password"])
+            session['userlogged'] = request.form['username']
+            return redirect(url_for('start_page', username=session['userlogged']))
+    return render_template('register.html', title='Регистрация')
 
+#Login
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     db = get_db()
@@ -35,7 +47,7 @@ def login():
     elif request.method == 'POST' and database.getData(request.form['user'], request.form['psw']):
         session['userlogged'] = request.form['user']
         return redirect(url_for('start_page', username=session['userlogged']))
-    return render_template('login_2var.html', title="Авторизация")
+    return render_template('login.html', title="Авторизация")
 
 if __name__ == "__main__":
     app.run(debug=True)

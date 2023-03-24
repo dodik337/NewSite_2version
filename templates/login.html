@@ -1,25 +1,13 @@
-{% extends "base.html" %}
-
+{% extends 'base.html' %}
 {% block content %}
-<h1> Вход </h1>
-<form action="" method="post" novalidate>
-    {{form.hidden_tag() }}
-    <p>
-        {{form.username.label }} <br>
-       {{form.username(size=32) }}
-    </p>
-    <p>
-        {{form.password.label }} <br>
-        {{form.password(size=32) }}
-        br>
-            {% for error in form.password.errors %}
-            <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-    </p>
+<form action="{{url_for('login')}}" method="post" class='form-contact'>
+    <h1>Вход</h1>
+    <p><label> Имя: </label> <input type="text" name="user" value="" required></p>
+    <p><label> Пароль: </label> <input type="password" name="psw" value="" required></p>
+    <p><input type="submit"></p>
 
-    <p>{{form.remember_me() }} {{form.remember_me.label }} </p>
-    <p>  {{form.submit() }}</p>
 
 </form>
 
-{% endblock  %}
+
+{% endblock %}
