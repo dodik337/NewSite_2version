@@ -106,5 +106,6 @@ if __name__ == "__main__":
     #print(db.delMenu(0))
     #print(db.addMenu('Главная', 'start_page'))
     #print(db.addMenu('Регистрация', 'register'))
-    #print(db.addMenu('Войти', 'login'))
+    #print(db.delMenu(9))
+    #print(db.addMenu('Admin Page', 'admin_page'))
 

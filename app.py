@@ -2,6 +2,7 @@ from flask import render_template, Flask, request, redirect, url_for, session, g
 from config import Config
 from database.sqldb import FDataBase
 
+
 import os, sqlite3
 
 app = Flask(__name__)
@@ -26,10 +27,8 @@ def get_db():
 def start_page():
     db = get_db()
     database = FDataBase(db)
-    if 'userlogged' in session:
-        return render_template('index.html', title='Главная', username=session['userlogged'], menu=database.getMenu())
-    else:
-        return render_template('index.html', title='Главная', menu=database.getMenu())
+    return render_template('index.html', title='Главная', menu=database.getMenu())
+
 
 #Register
 @app.route('/register', methods=['GET', 'POST'])
@@ -40,10 +39,23 @@ def register():
         return redirect(url_for('start_page', username=session['userlogged']))
     if request.method == 'POST':
         if request.form['password'] == request.form['password2']:
-            database.addData(request.form["username"], request.form["password"])
-            session['userlogged'] = request.form['username']
-            return redirect(url_for('start_page', username=session['userlogged']))
+            if database.addData(request.form["username"], request.form["password"]):
+                session['userlogged'] = request.form['username']
+                return redirect(url_for('start_page', username=session['userlogged']))
+            else:
+                return render_template('register.html', title='Регистрация')
     return render_template('register.html', title='Регистрация')
+
+
+@app.route('/admin', methods=['GET', 'POST'])
+def admin_page():
+    try:
+        if session['userlogged'] == 'admin':
+            db = get_db()
+            database = FDataBase(db)
+            return render_template('admin.html', title='Admin', menu=database.getMenu())
+    except:
+        return redirect(url_for('start_page'))
 
 #Login
 @app.route('/login', methods=['POST', 'GET'])
@@ -56,6 +68,8 @@ def login():
         session['userlogged'] = request.form['username']
         return redirect(url_for('start_page', username=session['userlogged']))
     return render_template('login.html', title="Авторизация")
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
