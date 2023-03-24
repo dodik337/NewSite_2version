@@ -21,15 +21,23 @@ def get_db():
         g.link_db = connect_db()
         return g.link_db
 
+#Main page
 @app.route('/index', methods=['GET', 'POST'])
 def start_page():
-    return render_template('index.html', title='Главная')
+    db = get_db()
+    database = FDataBase(db)
+    if 'userlogged' in session:
+        return render_template('index.html', title='Главная', username=session['userlogged'], menu=database.getMenu())
+    else:
+        return render_template('index.html', title='Главная', menu=database.getMenu())
 
 #Register
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     db = get_db()
     database = FDataBase(db)
+    if 'userlogged' in session:
+        return redirect(url_for('start_page', username=session['userlogged']))
     if request.method == 'POST':
         if request.form['password'] == request.form['password2']:
             database.addData(request.form["username"], request.form["password"])
@@ -44,8 +52,8 @@ def login():
     database = FDataBase(db)
     if 'userlogged' in session:
         return redirect(url_for('start_page', username=session['userlogged']))
-    elif request.method == 'POST' and database.getData(request.form['user'], request.form['psw']):
-        session['userlogged'] = request.form['user']
+    elif request.method == 'POST' and database.getData(request.form['username'], request.form['password']):
+        session['userlogged'] = request.form['username']
         return redirect(url_for('start_page', username=session['userlogged']))
     return render_template('login.html', title="Авторизация")
 

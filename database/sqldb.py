@@ -63,6 +63,33 @@ class FDataBase:
             print(str(e))
             return False
 
+    def addMenu(self, title, url):
+        try:
+            self.__cur.execute("INSERT INTO menu VALUES (NULL, ?, ?)", (title, url))
+            self.__db.commit()
+        except sq.Error as e:
+            print(str(e))
+            return False
+
+    def delMenu(self, id=0):
+        try:
+            if id == 0:
+                self.__cur.execute("DELETE FROM menu")
+            else:
+                self.__cur.execute(f"DELETE FROM menu WHERE id == {id}")
+            self.__db.commit()
+        except sq.Error as e:
+            print(str(e))
+            return False
+
+    def getMenu(self):
+        try:
+            self.__cur.execute("SELECT * FROM menu")
+            res = self.__cur.fetchall()
+            if res: return res
+        except sq.Error as e:
+            print(str(e))
+            return False
 
 if __name__ == "__main__":
     from app import connect_db
@@ -74,6 +101,10 @@ if __name__ == "__main__":
     #print(db.addData('jek', '825a'))
     #print(db.getData())
     #create_db()
-    #print(db.delData(3))
-
+    #print(db.delMenu(5))
+    #print(db.addMenu('Админ-панель', 'admin_panel'))
+    #print(db.delMenu(0))
+    #print(db.addMenu('Главная', 'start_page'))
+    #print(db.addMenu('Регистрация', 'register'))
+    #print(db.addMenu('Войти', 'login'))
 
