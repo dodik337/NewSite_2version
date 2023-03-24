@@ -1,18 +1,31 @@
 import sqlite3 as sq
+from flask import Flask, g, request
+from config import Config
+import os
+
+app = Flask(__name__)
+app.config.from_object(Config)
+app.config.update(dict(DATABASE=os.path.join(app.root_path,'../users.db')))
 
 #Подключение базы данных
-def sql_on_start():
-    global base, cur
-    base = sq.connect('../login.db') #Если такой базы нету, то она создается
-    cur = base.cursor()
-    if base:
-        print('DATABASE WAS CONNECTED SUCCESSFUL')
-    base.execute("CREATE TABLE IF NOT EXISTS {}(id INTEGER PRIMARY KEY AUTOINCREMENT, user TEXT UNIQUE, password TEXT)".format("login"))
-    base.commit()
 
-#Функция объявляется
-sql_on_start()
+def create_db():
+    '''Вспомогательная функция для создания таблиц БД '''
+    db = connect_db()
+    with app.open_resource('sql_db.sql', mode='r') as f:
+        db.cursor().executescript(f.read())
+    db.commit()
+    db.close()
 
+def connect_db():
+    conn = sq.connect(app.config['DATABASE'])
+    conn.row_factory = sq.Row
+    return conn
+
+def get_db():
+    if not hasattr(g, 'link_db'):
+        g.link_db = connect_db()
+        return g.link_db
 
 #Создаем класс
 class FDataBase:
@@ -20,30 +33,30 @@ class FDataBase:
         self.__db = db
         self.__cur = db.cursor()
 
-    def addData(self, user, password):
+    def addData(self, username, password):
         try:
-            self.__cur.execute('INSERT INTO login VALUES(NULL, ?, ?)', (user, password))
+            self.__cur.execute('INSERT INTO users VALUES(NULL, ?, ?)', (username, password))
             self.__db.commit()
         except sq.Error as e:
             print('Ошибка добавления в БД', str(e))
             return False
         return True
 
-    def delData(self, id=0):
+    def delData(self, id):
         try:
             if id == 0:
-                self.__cur.execute("DELETE FROM login")
+                self.__cur.execute("DELETE FROM users")
             else:
-                self.__cur.execute(f"DELETE FROM login WHERE user == {id}")
+                self.__cur.execute("DELETE FROM users WHERE id = {}".format(id))
             self.__db.commit()
         except sq.Error as e:
             print('Fail', str(e))
             return False
         return True
 
-    def getData(self):
+    def getData(self, username, password):
         try:
-            self.__cur.execute("SELECT * FROM login")
+            self.__cur.execute("SELECT username, password FROM users WHERE ? = username AND ? = password", (username, password))
             res = self.__cur.fetchall()
             return res
         except sq.Error as e:
@@ -58,5 +71,9 @@ if __name__ == "__main__":
     #print(db.addData('bob','123'))
     #print(db.addData('jonny', '1'))
     #print(db.addData('jon', '321'))
-    print(db.getData())
+    #print(db.addData('jek', '825a'))
+    #print(db.getData())
+    #create_db()
+    #print(db.delData(3))
+
 

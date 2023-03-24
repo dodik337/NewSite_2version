@@ -6,7 +6,9 @@ import os, sqlite3
 
 app = Flask(__name__)
 app.config.from_object(Config)
-app.config.update(dict(DATABASE=os.path.join(app.root_path, 'login.db')))
+app.config.update(dict(DATABASE=os.path.join(app.root_path,'../users.db')))
+
+
 
 def connect_db():
     conn = sqlite3.connect(app.config['DATABASE'])
@@ -28,13 +30,12 @@ def start_page():
 def login():
     db = get_db()
     database = FDataBase(db)
-    for data in database.getData():
-        if 'userlogged' in session:
-            return redirect(url_for('profile', username=session['userlogged']))
-        elif request.method == 'POST' and request.form['username'] in data['user'] and request.form['psw'] in data['password']:
-            session['userlogged'] = request.form['username']
-            return redirect(url_for('start_page', username=session['userlogged']))
-        return render_template('login_2var.html', title="Авторизация")
+    if 'userlogged' in session:
+        return redirect(url_for('start_page', username=session['userlogged']))
+    elif request.method == 'POST' and database.getData(request.form['user'], request.form['psw']):
+        session['userlogged'] = request.form['user']
+        return redirect(url_for('start_page', username=session['userlogged']))
+    return render_template('login_2var.html', title="Авторизация")
 
 if __name__ == "__main__":
     app.run(debug=True)
