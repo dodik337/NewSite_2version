@@ -4,9 +4,11 @@
 {% for cat, msg in get_flashed_messages(True) %}
 <div class="flash {{cat}}"> {{msg}}</div>
 {% endfor %}
-<form action="{{url_for('prof_reg')}}" method="post" class='form-contact'>
+<form action="{{url_for('profile')}}" method="post" class='form-contact'>
     <p><label>Ваше имя</label> <input type="text" name="name" value="" required></p>
-    <p><label>Ваше логин</label> <input type="text" name="logname" value="" required></p>
+    <p><label>Ваш логин</label> <input type="text" name="username" value="" required></p>
+    <p><label>Ваш пароль</label> <input type="text" name="password" value="" required></p>
+    <p><label>Ещё раз пароль</label> <input type="text" name="password2" value="" required></p>
     <p><label>Информация о вас</label> <br>
 
         <textarea name="info" rows="7" cols="40"> </textarea> </p>

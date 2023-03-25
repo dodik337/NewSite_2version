@@ -94,10 +94,10 @@ class FDataBase:
             print(str(e))
             return False
 
-    def addProfile(self, name, username, info):
+    def addProfile(self, name, username, password, info):
         try:
             tm = math.floor(time.time())
-            self.__cur.execute("INSERT INTO profile VALUES (NULL, ?, ?, ?, ?)", (name, username, info, tm))
+            self.__cur.execute("INSERT INTO profile VALUES (NULL, ?, ?, ?, ?, ?)", (name, username, password, info, tm))
             self.__db.commit()
         except sq.Error as e:
             print(str(e))
@@ -123,12 +123,22 @@ class FDataBase:
             print("Ошибка получения статьи из БД" + str(e))
             return False
 
+    def getName(self, username, password):
+        try:
+            self.__cur.execute("SELECT name, username, password FROM profile WHERE ? == username AND ? == password", (username, password))
+            res = self.__cur.fetchall()
+            if res: return res
+        except sq.Error as e:
+            print(str(e))
+            return False
+
 
 if __name__ == "__main__":
     from app import connect_db
     db = connect_db()
     db = FDataBase(db)
     #create_db()
+    #print(db.delData(0))
     #print(db.addData('bob','123'))
     #print(db.addData('jonny', '1'))
     #print(db.addData('jon', '321'))
@@ -140,13 +150,10 @@ if __name__ == "__main__":
     #print(db.addMenu('Авторизация', 'login'))
     #print(db.addMenu('Профиль', 'profile'))
     #print(db.addMenu('Выход', 'quit_login'))
-    #print(db.addMenu('Добав.профиль', 'prof_reg'))
-    #print(db.addProfile('Евгений', 'admin', 'Я красивый, занимаюсь программирование и люблю математику'))
-    #print(db.addProfile('Вася', 'jonny', 'Я умный, НЕ занимаюсь программирование и люблю математику'))
-    #print(db.addProfile('Петя', 'bob', 'Я не админ этого сайта(('))
-    #print(db.addProfile('Дима', 'jek', 'Я просто существую'))
-    #print(db.addProfile('Вика', 'jon', 'Я самая популярная в классе!'))
-    print(db.getProfile('Петя', 'bob'))
-    #create_db()
+    #print(db.addProfile('Евгений', 'admin', '111', 'Я красивый, занимаюсь программирование и люблю математику'))
+    #print(db.addProfile('Вася', 'jonny', '1', 'Я умный, НЕ занимаюсь программирование и люблю математику'))
+    #print(db.addProfile('Петя', 'bob', '123', 'Я не админ этого сайта(('))
+    #print(db.addProfile('Дима', 'jek', '825a', 'Я просто существую'))
+    #print(db.addProfile('Вика', 'jon', '321', 'Я самая популярная в классе!'))
 
 

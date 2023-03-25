@@ -26,33 +26,54 @@ def get_db():
 def first_page():
     return redirect(url_for('start_page'))
 
-@app.route('/profile_register', methods=['POST', 'GET'])
-def prof_reg():
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('error.html', title='Страница не найдена')
+
+@app.route('/profile', methods=['POST', 'GET'])
+def profile():
     db = get_db()
     database = FDataBase(db)
-    if request.method == 'POST':
-        if len(request.form['name']) > 3 and len(request.form['info']) > 6:
-            res = database.addProfile(request.form['name'], session['userlogged'], request.form['info'])
-            if not res:
-                flash('Профиль добававлен успешно', category='success')
+    if 'userlogged' in session:
+            if 'admin' in session['userlogged']:
+                return render_template('admin.html', title='Admin', menu=database.getMenu())
             else:
-                flash('Ошибка добавления профиля', category='error')
-        else:
-            flash('Ошибка добавления профиля', category='error')
-
+                return render_template('profile.html', title="Профиль", menu=database.getMenu(), profile=database.getProfile(request.form['name'], request.form['username']))
+    try:
+        if len(request.form['name']) > 3 and len(request.form['info']) > 6:
+            if request.form['password'] == request.form['password2']:
+                res = database.addProfile(request.form['name'], request.form['username'],\
+                                              request.form['password'], request.form['info'])
+                database.addData(request.form['username'], request.form['password'])
+                if not res:
+                    session['userlogged'] = request.form['username']
+                    flash('Профиль добававлен успешно', category='success')
+                    return redirect(url_for('profile', username=session['userlogged']))
+                else:
+                    flash('Ошибка добавления профиля', category='error')
+            else:
+                return render_template('addprofile.html', title='Добавить профиль', menu=database.getMenu())
+    except:
+        return redirect(url_for('start_page', title='Добавить профиль', menu=database.getMenu(), username=session['userlogged']))
     return render_template('addprofile.html', title='Добавить профиль', menu=database.getMenu())
 
+"""
 @app.route('/profile')
 def profile():
     db = get_db()
     database = FDataBase(db)
     if 'userlogged' in session:
-        if 'admin' in session['userlogged']:
-            return render_template('admin.html', title='Admin', menu=database.getMenu())
-        else:
-            return render_template('profile.html', title="Профиль", menu=database.getMenu(), profile=database.getProfile('Петя', session['userlogged']))
+        try:
+            if 'admin' in session['userlogged']:
+                return render_template('admin.html', title='Admin', menu=database.getMenu())
+            else:
+                return render_template('profile.html', title="Профиль", menu=database.getMenu(), profile=database.getProfile(prof_reg['name'], session['userlogged']))
+        except NameError as e:
+            print(str(e))
+            abort(404)
     else:
         return redirect(url_for('start_page'))
+"""
 
 #Main page
 @app.route('/index', methods=['GET', 'POST'])
@@ -98,9 +119,6 @@ def quit_login():
     else:
         return redirect(url_for('start_page'))
 
-@app.errorhandler(404)
-def page_not_found(error):
-    return render_template('error.html', title='Страница не найдена')
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -2,5 +2,11 @@
 
 {% block content %}
 {{ super() }}
-{{ profile }}
+    {%- block profile -%}
+        {% for p in profile -%}
+            <h1>{{p.name}}</h1>
+            <h2>{{p.username}}</h2>
+            <p>{{p.info}}</p>
+        {% endfor -%}
+    {% endblock profile -%}
 {% endblock %}
